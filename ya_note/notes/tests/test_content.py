@@ -16,7 +16,7 @@ class TestContent(TestCase):
         cls.note = Note.objects.create(
             title='Заголовок',
             text='Текст заметки',
-            slug='note-slug',
+            slug='slug заметки',
             author=cls.author,
         )
 

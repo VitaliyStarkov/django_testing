@@ -18,7 +18,7 @@ class TestRoutes(TestCase):
         cls.note = Note.objects.create(
             title='Новая заметка',
             text='Очень новая заметка',
-            slug='note-slug',
+            slug='SLUG ZAMETKI',
             author=cls.author
         )
 
