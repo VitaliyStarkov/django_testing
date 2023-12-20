@@ -26,7 +26,7 @@ def test_news_order(client):
 
 @pytest.mark.usefixtures('make_2_com')
 def test_comments_order(client, news):
-    url = reverse('news:detail', args=[news.id,])
+    url = reverse('news:detail', args=[news.id, ])
     response = client.get(url)
     assert 'news' in response.context
     news = response.context['news']

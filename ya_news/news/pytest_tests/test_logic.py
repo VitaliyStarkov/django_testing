@@ -55,6 +55,9 @@ def test_user_can_create_comment(admin_client, news, form_data):
 def test_other_user_cant_create_comment(client, news, form_data):
     url = reverse('news:detail', args=[news.pk])
     response = client.post(url, data=form_data)
+    login_url = reverse('users:login')
+    expected_url = f'{login_url}?next={url}'
+    assertRedirects(response, expected_url)
     assert Comment.objects.count() == 0
 
 
