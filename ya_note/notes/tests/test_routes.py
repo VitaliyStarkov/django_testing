@@ -22,11 +22,6 @@ class TestRoutes(TestCase):
             author=cls.author
         )
 
-    def test_home_availability_for_anonymous_user(self):
-        url = reverse('notes:home')
-        response = self.client.get(url)
-        self.assertEqual(response, HTTPStatus.Ok)
-
     def test_pages_availability_for_different_users(self):
         users_statuses = (
             (self.author, HTTPStatus.OK),
@@ -35,9 +30,9 @@ class TestRoutes(TestCase):
         urls = ('notes:list', 'notes:success', 'notes:add')
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name in urls:
-                with self.subTest(user=user, name=name):
-                    url = reverse(name, args=(self.note.id,))
+            for page in urls:
+                with self.subTest(user=user, page=page):
+                    url = reverse(page, args=[self.note.slug])
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
@@ -46,22 +41,22 @@ class TestRoutes(TestCase):
             ('notes:detail', (self.note.slug,)),
             ('notes:edit', (self.note.slug,)),
             ('notes:delete', (self.note.slug,)),
-            ('notes:add', None),
-            ('notes:success', None),
             ('notes:list', None),
+            ('notes:success', None),
+            ('notes:add', None),
         )
-        for name, args in urls:
-            with self.subTest(name=name):
-                url = reverse(name, args=args)
-                response = self.client.get(url)
+        for page, args in urls:
+            with self.subTest(page=page):
+                url = reverse(page, args=args)
                 login_url = reverse('users:login')
                 expected_url = f'{login_url}?next={url}'
+                response = self.client.get(url)
                 self.assertRedirects(response, expected_url)
 
     def test_pages_availability_for_anonymous_user(self):
-        urls = ('users:login', 'users:logout', 'users:signup')
-        for name in urls:
-            with self.subTest(name=name):
-                url = reverse(name)
+        urls = ('users:login', 'users:logout', 'users:signup', 'notes:home')
+        for page in urls:
+            with self.subTest(page=page):
+                url = reverse(page)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)

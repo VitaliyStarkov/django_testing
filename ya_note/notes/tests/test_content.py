@@ -20,19 +20,20 @@ class TestContent(TestCase):
             author=cls.author,
         )
 
-    def test_note_in_list_for_author(self):
-        self.client.force_login(self.author)
+    def test_notes_list_for_different_users(self):
+        users_notes = (
+            (self.author, True),
+            (self.reader, False),
+        )
         url = reverse('notes:list')
-        response = self.author.get(url)
-        note_in_object_list = self.note in response.context['object_list']
-        self.assertEqual(note_in_object_list, True)
-
-    def test_note_not_in_list_for_another_user(self):
-        self.client.force_login(self.reader)
-        url = reverse('notes:list')
-        response = self.reader.get(url)
-        note_in_object_list = self.note in response.context['object_list']
-        self.assertEqual(note_in_object_list, False)
+        for user, true_or_false in users_notes:
+            self.client.force_login(user)
+            with self.subTest(user=user.username, true_or_false=true_or_false):
+                response = self.client.get(url)
+                note_in_object_list = self.note in response.context[
+                    'object_list'
+                ]
+                self.assertEqual(note_in_object_list, true_or_false)
 
     def test_create_note_page_contains_form(self):
         self.client.force_login(self.author)
