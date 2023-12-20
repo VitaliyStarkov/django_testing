@@ -1,6 +1,5 @@
 from http import HTTPStatus
 
-# Импортируем функцию для определения модели пользователя.
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -24,7 +23,7 @@ class TestRoutes(TestCase):
         )
 
     def test_home_availability_for_anonymous_user(self):
-        url = reverse('note:home')
+        url = reverse('notes:home')
         response = self.client.get(url)
         self.assertEqual(response, HTTPStatus.Ok)
 
