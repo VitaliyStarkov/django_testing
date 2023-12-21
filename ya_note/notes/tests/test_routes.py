@@ -18,7 +18,7 @@ class TestRoutes(TestCase):
         cls.note = Note.objects.create(
             title='Новая заметка',
             text='Очень новая заметка',
-            slug='SLUG ZAMETKI',
+            slug='note-slug',
             author=cls.author
         )
 
@@ -37,21 +37,21 @@ class TestRoutes(TestCase):
                     self.assertEqual(response.status_code, status)
 
     def test_redirects(self):
+        login_url = reverse('users:login')
         urls = (
-            ('notes:detail', (self.note.slug,)),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,)),
             ('notes:list', None),
             ('notes:success', None),
             ('notes:add', None),
+            ('notes:detail', (self.note.slug,)),
+            ('notes:edit', (self.note.slug,)),
+            ('notes:delete', (self.note.slug,)),
         )
         for page, args in urls:
             with self.subTest(page=page):
                 url = reverse(page, args=args)
-                login_url = reverse('users:login')
-                expected_url = f'{login_url}?next={url}'
+                redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
-                self.assertRedirects(response, expected_url)
+                self.assertRedirects(response, redirect_url)
 
     def test_pages_availability_for_anonymous_user(self):
         urls = ('users:login', 'users:logout', 'users:signup', 'notes:home')
