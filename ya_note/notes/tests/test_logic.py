@@ -71,7 +71,7 @@ class TestNoteEditDelete(TestCase):
         cls.note = Note.objects.create(
             title=cls.NOTE_TITLE,
             text=cls.NOTE_TEXT,
-            slug='SLUG ЗАМЕТКИ',
+            slug='note/slug',
             author=cls.author,
         )
         cls.edit_note_url = reverse('notes:edit', args=[cls.note.slug])
