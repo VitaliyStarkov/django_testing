@@ -27,12 +27,12 @@ class TestRoutes(TestCase):
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
         )
-        urls = ('notes:list', 'notes:success', 'notes:add')
+        urls = ('notes:detail', 'notes:edit', 'notes:delete')
         for user, status in users_statuses:
             self.client.force_login(user)
             for page in urls:
                 with self.subTest(user=user.username, page=page):
-                    url = reverse(page, args=None)
+                    url = reverse(page, args=[self.note.slug])
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
