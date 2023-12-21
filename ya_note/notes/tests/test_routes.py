@@ -31,8 +31,8 @@ class TestRoutes(TestCase):
         for user, status in users_statuses:
             self.client.force_login(user)
             for page in urls:
-                with self.subTest(user=user, page=page):
-                    url = reverse(page)
+                with self.subTest(user=user.username, page=page):
+                    url = reverse(page, args=[self.note.slug])
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
