@@ -2,14 +2,14 @@ import pytest
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.utils import timezone
+from django.urls import reverse
 
 from news.models import News, Comment
 
 
 @pytest.fixture
 def author(django_user_model):
-    return django_user_model.objects.create(username='Лев Толстой')
+    return django_user_model.objects.create(username='Артемка')
 
 
 @pytest.fixture
@@ -45,16 +45,6 @@ def form_data():
 
 
 @pytest.fixture
-def pk_for_com(comment):
-    return comment.pk,
-
-
-@pytest.fixture
-def pk_for_news(news):
-    return news.pk,
-
-
-@pytest.fixture
 def make_many_news():
     News.objects.bulk_create(
         News(title=f'News number {index}',
@@ -67,10 +57,42 @@ def make_many_news():
 
 @pytest.fixture
 def make_2_com(author, news):
-    now = timezone.now()
     for index in range(2):
-        comment = Comment.objects.create(
+        Comment.objects.create(
             news=news, author=author, text=f'Text {index}',
         )
-        comment.created = now + timedelta(days=index)
-        comment.save()
+
+
+@pytest.fixture
+def url_detail(news):
+    return reverse('news:detail', args=(1,))
+
+
+@pytest.fixture
+def url_edit(comment):
+    return reverse('news:edit', args=(1,))
+
+
+@pytest.fixture
+def url_delete(comment):
+    return reverse('news:delete', args=(1,))
+
+
+@pytest.fixture
+def url_home():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def login_url():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def logout_url():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def signup_url():
+    return reverse('users:signup')

@@ -1,46 +1,47 @@
 import pytest
-from django.urls import reverse
+
 from django.conf import settings
+
+from news.forms import CommentForm
 
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.usefixtures('make_many_news')
-def test_news_count(client):
-    url = reverse('news:home')
-    response = client.get(url)
+def test_news_count(client, make_many_news, url_home):
+    response = client.get(url_home)
     object_list = response.context['object_list']
     news_count = len(object_list)
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-@pytest.mark.usefixtures('make_many_news')
-def test_news_order(client):
-    url = reverse('news:home')
-    response = client.get(url)
+def test_news_order(client, make_many_news, url_home):
+    response = client.get(url_home)
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
     assert all_dates == sorted_dates
 
 
-@pytest.mark.usefixtures('make_2_com')
-def test_comments_order(client, news):
-    url = reverse('news:detail', args=[news.id, ])
-    response = client.get(url)
-    assert 'news' in response.context
-    news = response.context['news']
-    all_comments = news.comment_set.all()
-    assert all_comments[0].created <= all_comments[1].created
+def test_comments_order(client, news, make_2_com, url_detail):
+    response = client.get(url_detail)
+    list_comments = response.context['news'].comment_set.all()
+    all_dates = [comment.created for comment in list_comments]
+    sorted_dates = sorted(all_dates)
+    assert all_dates == sorted_dates
 
 
 @pytest.mark.parametrize(
-    'username, is_permitted', ((pytest.lazy_fixture('admin_client'), True),
-                               (pytest.lazy_fixture('client'), False))
+    'clients, is_permitted', ((pytest.lazy_fixture('admin_client'), True),
+                              (pytest.lazy_fixture('client'), False))
 )
 def test_comment_form_availability_for_different_users(
-        news, username, is_permitted):
-    url = reverse('news:detail', args=(news.pk,))
-    res = username.get(url)
-    result = 'form' in res.context
+        news, clients, is_permitted, url_detail):
+    response = clients.get(url_detail)
+    result = 'form' in response.context
     assert result == is_permitted
+
+
+def test_for_author_in_form_there_commentform(admin_client, news, url_detail):
+    response = admin_client.get(url_detail)
+    list_forms = response.context['form']
+    assert isinstance(list_forms, CommentForm)
