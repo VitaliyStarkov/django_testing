@@ -39,9 +39,7 @@ pytestmark = pytest.mark.django_db
 def test_pages_availability_for_certain_user(
     url, clients, status
 ):
-    """
-    Проверка доступа к страницам
-    """
+    """Проверка доступа к страницам"""
     response = clients.get(url)
     assert response.status_code == status
 
@@ -52,8 +50,7 @@ def test_pages_availability_for_certain_user(
      pytest.lazy_fixture('url_edit')),
 )
 def test_redirects(client, url, login_url):
-    """
-    Незарегистрированный пользователь
+    """Незарегистрированный пользователь
     переадресовывается на страницу регистрации
     """
     expected_url = f'{login_url}?next={url}'

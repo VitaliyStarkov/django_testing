@@ -29,8 +29,7 @@ class TestContent(TestCase):
         cls.url_edit = reverse('notes:edit', args=(cls.note.slug,))
 
     def test_notes_list_for_reader_users(self):
-        """
-        В список заметок одного пользователя
+        """В список заметок одного пользователя
         не попадают заметки другого пользователя
         """
         count_initial = Note.objects.filter(author=self.author).count()
@@ -40,9 +39,7 @@ class TestContent(TestCase):
         self.assertEqual(len(object_list), count_initial)
 
     def test_notes_list_for_author_users(self):
-        """
-        У автора заметки есть заметка в списке
-        """
+        """У автора заметки есть заметка в списке"""
         response = self.author_client.get(self.url_list)
         object_list = response.context['object_list']
         note = object_list.get(pk=self.note.pk)
@@ -53,9 +50,7 @@ class TestContent(TestCase):
         self.assertEqual(note.author, self.note.author)
 
     def test_form_in_create_edit_pages(self):
-        """
-        На страницах создания и редактирования заметки передаются формы
-        """
+        """На страницах создания и редактирования заметки передаются формы"""
         for url in (self.url_add, self.url_edit):
             with self.subTest(url):
                 response = self.author_client.get(url)
