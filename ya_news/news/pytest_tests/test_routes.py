@@ -36,9 +36,12 @@ pytestmark = pytest.mark.django_db
                               pytest.lazy_fixture('admin_client'),
                               HTTPStatus.NOT_FOUND))
 )
-def test_pages_availability_for_anonymous_user(
+def test_pages_availability_for_certain_user(
     url, clients, status
 ):
+    """
+    Проверка доступа к страницам
+    """
     response = clients.get(url)
     assert response.status_code == status
 
@@ -49,6 +52,10 @@ def test_pages_availability_for_anonymous_user(
      pytest.lazy_fixture('url_edit')),
 )
 def test_redirects(client, url, login_url):
+    """
+    Незарегистрированный пользователь
+    переадресовывается на страницу регистрации
+    """
     expected_url = f'{login_url}?next={url}'
     response = client.get(url)
     assertRedirects(response, expected_url)

@@ -50,18 +50,29 @@ class TestRoutes(TestCase):
         )
 
     def test_all_urls_accessible_author(self):
+        """
+        Автору доступны все urls
+        """
         for url, status, status_for_anonymous in self.cortege_urls:
             with self.subTest(url=url):
                 res = self.author_client.get(url)
                 self.assertEqual(res.status_code, HTTPStatus.OK)
 
     def test_urls_for_auth_client(self):
+        """
+        Все urls кроме редактирования,
+        удаления и детали доступны не автору
+        """
         for url, status, status_for_anonymous in self.cortege_urls:
             with self.subTest(url=url, status=status):
                 res = self.reader_client.get(url)
                 self.assertEqual(res.status_code, status)
 
     def test_redirects(self):
+        """
+        Незарегистрированный пользователь
+        переадресовывается на страницу регистрации
+        """
         for url, status, status_for_anonymous in self.cortege_urls:
             with self.subTest(
                 url=url,

@@ -42,6 +42,9 @@ class TestNoteCreation(TestCase):
         cls.login_url = reverse('users:login')
 
     def test_user_can_create_note(self):
+        """
+        Пользователь может создать заметку
+        """
         note = Note.objects.all()
         Note.objects.all().delete()
         self.assertEqual(Note.objects.count(), 0)
@@ -55,6 +58,9 @@ class TestNoteCreation(TestCase):
         self.assertEqual(note.last().author, self.author)
 
     def test_anonymous_user_cant_create_note(self):
+        """
+        Анонимный пользователь не может создать заметку
+        """
         count_old = Note.objects.count()
         response = self.client.post(self.url_add, data=self.form_data)
         count_new = Note.objects.count()
@@ -64,6 +70,9 @@ class TestNoteCreation(TestCase):
         self.assertEqual(Note.objects.count(), 1)
 
     def test_not_unique_slug(self):
+        """
+        Слаг всегда уникален
+        """
         count_old = Note.objects.count()
         response = self.author_client.post(self.url_add, data=self.form_data)
         count_new = Note.objects.count()
@@ -73,6 +82,9 @@ class TestNoteCreation(TestCase):
                              field='slug', errors=warning)
 
     def test_empty_slug(self):
+        """
+        Слаг автоматически создаётся для заметки при пустом поле слаг
+        """
         Note.objects.all().delete()
         self.assertEqual(Note.objects.count(), 0)
         self.client.force_login(self.author)
@@ -118,6 +130,9 @@ class TestNoteEditDelete(TestCase):
         }
 
     def test_author_can_edit_note(self):
+        """
+        Автор может редактировать свою заметку
+        """
         count_old = Note.objects.count()
         self.author_client.post(self.url_edit, self.form_data)
         count_new = Note.objects.count()
@@ -129,6 +144,9 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(note.author, self.note.author)
 
     def test_other_user_cant_edit_note(self):
+        """
+        Пользователь не может редактировать чужие заметки
+        """
         response = self.reader_client.post(self.url_edit, self.form_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         new_note = Note.objects.last()
@@ -138,6 +156,9 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(self.note.author, new_note.author)
 
     def test_author_can_delete_note(self):
+        """
+        Автор может удалять свои заметки
+        """
         count_old = Note.objects.count()
         response = self.author_client.post(self.url_delete)
         count_new = Note.objects.count()
@@ -146,6 +167,9 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(Note.objects.count(), 0)
 
     def test_other_user_cant_delete_note(self):
+        """
+        Пользователь не может удалять чужие заметки
+        """
         count_old = Note.objects.count()
         response = self.reader_client.post(self.url_delete)
         count_new = Note.objects.count()
