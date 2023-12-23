@@ -42,8 +42,7 @@ def test_comment_form_availability_for_different_users(
     незарегестрированный - нет.
     """
     response = client.get(url_detail)
-    result = 'form' in response.context
-    assert result is False
+    assert ('form' in response.context) is False
 
 
 def test_for_author_in_form_there_commentform(admin_client, news, url_detail):
@@ -51,5 +50,6 @@ def test_for_author_in_form_there_commentform(admin_client, news, url_detail):
     передаётся форма комментария.
     """
     response = admin_client.get(url_detail)
+    assert ('form' in response.context) is True
     list_forms = response.context['form']
     assert isinstance(list_forms, CommentForm)

@@ -60,7 +60,6 @@ class TestNoteCreation(TestCase):
         self.assertEqual(count_old, count_new)
         expected_url = f'{self.login_url}?next={self.url_add}'
         self.assertRedirects(response, expected_url)
-        self.assertEqual(Note.objects.count(), 1)
 
     def test_not_unique_slug(self):
         """Слаг всегда уникален."""
@@ -124,9 +123,9 @@ class TestNoteEditDelete(TestCase):
         count_new = Note.objects.count()
         self.assertEqual(count_old, count_new)
         note = Note.objects.get(pk=self.note.pk)
-        self.assertEqual(self.form_data['title'], self.NEW_NOTE_TITLE)
-        self.assertEqual(self.form_data['text'], self.NEW_NOTE_TEXT)
-        self.assertEqual(self.form_data['slug'], self.NEW_NOTE_SLUG)
+        self.assertEqual(note.title, self.form_data['title'])
+        self.assertEqual(note.text, self.form_data['text'])
+        self.assertEqual(note.slug, self.form_data['slug'])
         self.assertEqual(note.author, self.note.author)
 
     def test_other_user_cant_edit_note(self):

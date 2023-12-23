@@ -1,8 +1,7 @@
-import pytest
-
 from http import HTTPStatus
 from random import choice
 
+import pytest
 from pytest_django.asserts import assertRedirects, assertFormError
 
 from news.forms import BAD_WORDS, WARNING
