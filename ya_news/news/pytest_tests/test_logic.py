@@ -1,4 +1,5 @@
 import pytest
+
 from http import HTTPStatus
 from random import choice
 
@@ -10,14 +11,11 @@ from news.models import Comment
 pytestmark = pytest.mark.django_db
 
 
-def test_author_can_edit_comment(author_client,
-                                 form_data,
-                                 comment,
-                                 news,
-                                 url_detail,
-                                 url_edit,
+def test_author_can_edit_comment(author_client, form_data,
+                                 comment, news,
+                                 url_detail, url_edit,
                                  author):
-    """Автор может редактировать свой комментарий"""
+    """Автор может редактировать свой комментарий."""
     set_comments_old = set(Comment.objects.all())
     count_old = Comment.objects.count()
     response = author_client.post(url_edit, data=form_data)
@@ -40,7 +38,7 @@ def test_other_user_cant_edit_comment(admin_client,
                                       url_edit,
                                       author,
                                       news):
-    """Пользователь не может редактировать чужие комментарии"""
+    """Пользователь не может редактировать чужие комментарии."""
     set_comments_old = set(Comment.objects.all())
     count_old = Comment.objects.count()
     response = admin_client.post(url_edit, form_data)
@@ -62,27 +60,25 @@ def test_author_can_delete_comment(author_client,
                                    news,
                                    url_delete,
                                    url_detail):
-    """Автор может удалять свои комментарии"""
+    """Автор может удалять свои комментарии."""
     count_old = Comment.objects.count()
     response = author_client.post(url_delete)
     expected_url = f'{url_detail}#comments'
     assertRedirects(response, expected_url)
     count_new = Comment.objects.count()
-    assert count_old == count_new + 1
-    assert count_new == 0
+    assert count_old - 1 == count_new
 
 
 def test_other_user_cant_delete_comment(admin_client,
                                         news,
                                         comment,
                                         url_delete):
-    """Пользователь не может удалять чужие комментарии"""
+    """Пользователь не может удалять чужие комментарии."""
     count_old = Comment.objects.count()
     response = admin_client.post(url_delete)
     assert response.status_code == HTTPStatus.NOT_FOUND
     count_new = Comment.objects.count()
     assert count_old == count_new
-    assert count_new == 1
 
 
 def test_user_can_create_comment(author_client,
@@ -90,7 +86,7 @@ def test_user_can_create_comment(author_client,
                                  form_data,
                                  url_detail,
                                  author):
-    """Зарегистрированный пользователь может писать комментарии"""
+    """Зарегистрированный пользователь может писать комментарии."""
     set_comments_old = set(Comment.objects.all())
     count_old = Comment.objects.count()
     response = author_client.post(url_detail, data=form_data)
@@ -104,8 +100,7 @@ def test_user_can_create_comment(author_client,
     assert comment.text == form_data['text']
     assert comment.news == news
     assert comment.author == author
-    assert count_old == count_new - 1
-    assert count_new == 1
+    assert count_old + 1 == count_new
 
 
 def test_other_user_cant_create_comment(client,
@@ -113,19 +108,18 @@ def test_other_user_cant_create_comment(client,
                                         form_data,
                                         url_detail,
                                         login_url):
-    """Незарегистрированный пользователь не может писать комментарии"""
+    """Незарегистрированный пользователь не может писать комментарии."""
     count_old = Comment.objects.count()
     response = client.post(url_detail, data=form_data)
     expected_url = f'{login_url}?next={url_detail}'
     assertRedirects(response, expected_url)
     count_new = Comment.objects.count()
     assert count_old == count_new
-    assert count_new == 0
 
 
 def test_user_cant_use_bad_words(admin_client, news, url_detail):
-    """При написании в комментарии запрещенных слов, комментарий не
-    создается
+    """При написании в комментарии запрещенных слов,
+    комментарий не создается.
     """
     count_old = Comment.objects.count()
     bad_words_data = {'text': f'Mr Petrov {choice(BAD_WORDS)}!'}
@@ -133,4 +127,3 @@ def test_user_cant_use_bad_words(admin_client, news, url_detail):
     assertFormError(response, form='form', field='text', errors=WARNING)
     count_new = Comment.objects.count()
     assert count_old == count_new
-    assert count_new == 0

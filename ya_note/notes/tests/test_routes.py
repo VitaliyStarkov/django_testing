@@ -37,42 +37,64 @@ class TestRoutes(TestCase):
         cls.logout_url = reverse('users:logout')
         cls.signup_url = reverse('users:signup')
         cls.cortege_urls = (
-            (cls.url_home, HTTPStatus.OK, HTTPStatus.OK),
-            (cls.url_list, HTTPStatus.OK, HTTPStatus.FOUND),
-            (cls.url_detail, HTTPStatus.NOT_FOUND, HTTPStatus.FOUND),
-            (cls.url_edit, HTTPStatus.NOT_FOUND, HTTPStatus.FOUND),
-            (cls.url_delete, HTTPStatus.NOT_FOUND, HTTPStatus.FOUND),
-            (cls.url_success, HTTPStatus.OK, HTTPStatus.FOUND),
-            (cls.login_url, HTTPStatus.OK, HTTPStatus.OK),
-            (cls.url_add, HTTPStatus.OK, HTTPStatus.FOUND),
-            (cls.logout_url, HTTPStatus.OK, HTTPStatus.OK),
-            (cls.signup_url, HTTPStatus.OK, HTTPStatus.OK)
+            cls.url_home,
+            cls.url_list,
+            cls.url_detail,
+            cls.url_edit,
+            cls.url_delete,
+            cls.url_success,
+            cls.login_url,
+            cls.url_add,
+            cls.logout_url,
+            cls.signup_url
         )
+        cls.banned_urls_reader = (cls.url_detail,
+                                  cls.url_edit,
+                                  cls.url_delete)
+        cls.banned_urls_client = (cls.url_add,
+                                  cls.url_success,
+                                  cls.url_delete,
+                                  cls.url_edit,
+                                  cls.url_detail,
+                                  cls.url_list)
 
     def test_all_urls_accessible_author(self):
-        """Автору доступны все urls"""
-        for url, status, status_for_anonymous in self.cortege_urls:
+        """Автору доступны все urls."""
+        for url in self.cortege_urls:
             with self.subTest(url=url):
                 res = self.author_client.get(url)
                 self.assertEqual(res.status_code, HTTPStatus.OK)
 
     def test_urls_for_auth_client(self):
         """Все urls кроме редактирования,
-        удаления и детали доступны не автору
+        удаления и детали доступны не автору.
         """
-        for url, status, status_for_anonymous in self.cortege_urls:
-            with self.subTest(url=url, status=status):
+        list_allow = set(
+            set(self.cortege_urls) - set(self.banned_urls_reader)
+        )
+        for urls in self.banned_urls_reader:
+            with self.subTest(urls=urls):
+                response = self.reader_client.get(urls)
+                self.assertEqual(response.status_code,
+                                 HTTPStatus.NOT_FOUND)
+        for url in list_allow:
+            with self.subTest(url=url, urls=urls):
                 res = self.reader_client.get(url)
-                self.assertEqual(res.status_code, status)
+                self.assertEqual(res.status_code, HTTPStatus.OK)
 
     def test_redirects(self):
         """Незарегистрированный пользователь
-        переадресовывается на страницу регистрации
+        переадресовывается на страницу регистрации.
         """
-        for url, status, status_for_anonymous in self.cortege_urls:
-            with self.subTest(
-                url=url,
-                status_for_anonymous=status_for_anonymous
-            ):
+        list_allow = set(
+            set(self.cortege_urls) - set(self.banned_urls_client)
+        )
+        for urls in self.banned_urls_client:
+            with self.subTest(urls=urls):
+                response = self.client.get(urls)
+                self.assertEqual(response.status_code,
+                                 HTTPStatus.FOUND)
+        for url in list_allow:
+            with self.subTest(url=url):
                 res = self.client.get(url)
-                self.assertEqual(res.status_code, status_for_anonymous)
+                self.assertEqual(res.status_code, HTTPStatus.OK)

@@ -30,27 +30,28 @@ class TestContent(TestCase):
 
     def test_notes_list_for_reader_users(self):
         """В список заметок одного пользователя
-        не попадают заметки другого пользователя
+        не попадают заметки другого пользователя.
         """
-        count_initial = Note.objects.filter(author=self.author).count()
-        response = self.author_client.get(self.url_list)
+        response = self.reader_client.get(self.url_list)
         object_list = response.context['object_list']
-
-        self.assertEqual(len(object_list), count_initial)
+        self.assertEqual(object_list.count(), 0)
 
     def test_notes_list_for_author_users(self):
-        """У автора заметки есть заметка в списке"""
+        """У автора заметки есть заметка в списке."""
         response = self.author_client.get(self.url_list)
         object_list = response.context['object_list']
         note = object_list.get(pk=self.note.pk)
-        self.assertIn(self.note, object_list)
+        count_notes = object_list.count()
+        self.assertEqual(count_notes, 1)
         self.assertEqual(note.text, self.note.text)
         self.assertEqual(note.title, self.note.title)
         self.assertEqual(note.slug, self.note.slug)
         self.assertEqual(note.author, self.note.author)
 
     def test_form_in_create_edit_pages(self):
-        """На страницах создания и редактирования заметки передаются формы"""
+        """На страницах создания и редактирования заметки
+        передаются формы.
+        """
         for url in (self.url_add, self.url_edit):
             with self.subTest(url):
                 response = self.author_client.get(url)

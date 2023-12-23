@@ -65,17 +65,17 @@ def make_2_com(author, news):
 
 @pytest.fixture
 def url_detail(news):
-    return reverse('news:detail', args=(1,))
+    return reverse('news:detail', args=(news.id,))
 
 
 @pytest.fixture
 def url_edit(comment):
-    return reverse('news:edit', args=(1,))
+    return reverse('news:edit', args=(comment.id,))
 
 
 @pytest.fixture
 def url_delete(comment):
-    return reverse('news:delete', args=(1,))
+    return reverse('news:delete', args=(comment.id,))
 
 
 @pytest.fixture
